@@ -1,34 +1,30 @@
-import websockets
 import asyncio
+import websockets
+
+async def handle_connection(websocket):
+    client_ip = websocket.remote_address[0]
+    with open("lista", "a") as f:
+        if os.path.getsize("lista") != 0:
+            f.write('\n')
+        f.write(client_ip)
+
+    print(f"Client connected from IP: {client_ip}")
+    
+    # TODO
+    await websocket.send(f"Your IP address is: {client_ip}")
+    
+    try:
+        async for message in websocket:
+            print(f"Received from {client_ip}: {message}")
+            await websocket.send(f"Echo: {message}")
+    except websockets.exceptions.ConnectionClosed:
+        print(f"Client {client_ip} disconnected")
 
 
-clients = []
-
-
-async def handle_message(websocket, path):
-    global clients
-    global fastest_time
-    message = await websocket.recv()
-    if message == "buzz":
-        respones_time = asyncio.get_event_loop().time()
-        clients.append([websocket, respones_time])
-        if len(clients) == 1:
-            await websocket.send("First place!")
-        else:
-            t = round(respones_time - fastest_time, 2)
-            await websocket.send("cdsada")
-
-async def start_server():
-    async with websockets.serve(handle_message, "localhost", 8765):
-        print('Websocket server has started')
+async def main():
+    async with websockets.serve(handle_connection, "0.0.0.0", 8765):
+        print("WebSocket server is running on ws://localhost:8765")
         await asyncio.Future()
 
-
-
-def main():
-    asyncio.run(start_server())
-
-
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    asyncio.run(main())
