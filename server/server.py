@@ -1,6 +1,6 @@
 import asyncio
 import websockets
-
+import os
 
 def delete_line_with_string(file_path, target_string):
     with open(file_path, 'r') as file:
@@ -12,20 +12,21 @@ def delete_line_with_string(file_path, target_string):
 async def handle_connection(websocket):
     client_ip = websocket.remote_address[0]
     print(f"connected from IP: {client_ip}")
-    with open("lista", 'r') as file:
-        lines = file.readlines()
-        if not any(client_ip in line for line in lines):
-            with open("lista", "a") as f:
-                if os.path.getsize("lista") != 0:
-                    f.write('\n')
-                f.write(client_ip)
+
     with open("wylacz", "r") as file:
-        lines = file.readlines()
-        if not any(client_ip in line for line in lines):
+        lines_shutdown = file.readlines()
+        if any(client_ip in line for line in lines_shutdown):
             await websocket.send(f"yep")
             delete_line_with_string("wylacz", client_ip)
         else:
             await websocket.send(f"nope")
+            with open("lista", 'r') as file:
+                lines = file.readlines()
+                if not any(client_ip in line for line in lines):
+                    with open("lista", "a") as f:
+                        if os.path.getsize("lista") != 0:
+                            f.write('\n')
+                        f.write(client_ip)
     await websocket.send(f"Your IP address is: {client_ip}")
     try:
         async for message in websocket:

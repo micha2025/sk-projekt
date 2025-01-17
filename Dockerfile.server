@@ -1,0 +1,11 @@
+FROM python:3.14.0a4-bookworm
+
+WORKDIR /app
+
+COPY server/* /app/
+
+RUN pip install websockets 
+RUN chmod +x /app/cli.sh && ln -s /app/cli.sh /usr/bin/climgmt
+
+CMD ["python", "/app/server.py"]
+
