@@ -40,5 +40,13 @@ async def main():
         print("WebSocket server is running on ws://localhost:8765")
         await asyncio.Future()
 
+def operationa_files(file_name):
+    if not os.path.exists(file_name):
+            with open(file_name, "w") as file:
+                file.write("") 
+
+
 if __name__ == "__main__":
+    operationa_files("lista")
+    operationa_files("wylacz")
     asyncio.run(main())
